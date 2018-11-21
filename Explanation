@@ -1,0 +1,166 @@
+This is an explanation of all the code
+
+This session took place after school on Monday, November 19th
+
+This is a Command Based Program. That means that the program is made up of different classes and commands,
+allowing you to run different actions at different times and under different activations (such as a button press)
+
+
+CLASSES- MUST READ
+With FIRST, we are given the libraries. When you create a class, you are creating an object that inherits code from the class
+Think of the class as a blueprint. It has all the characteristics and dimensions, all you have to do is give it a name,
+then it becomes an object. 
+A good way is see it is that an object is an instant of a class.
+Let's look at some examples
+
+VictorSP motorFrontLeft = new VictorSP(1);
+
+This is saying that we have a new VictorSP object, with the name motorFrontLeft. We then initialize or call it, and provide it with the
+required input, being the PWM port it is plugged in to
+This motor will get qualities and methods that are provided by the VictorSP library. 
+So now, with just one line, we have created an object and given it a name, and it has all the setSpeed() etc. commands built in
+
+The motorFrontLeft is an instance of the VictorSP class with an import of PWM slot 1 on the roboRIO
+
+COOL STUFF RIGHT!!
+
+Lets look at command based stuff
+
+When doing Command based, there are 5 primary types of base classes:
+-Robot
+-Command
+-Subsystem
+-OI
+-RobotMap
+
+------
+Robot.java
+-----
+
+Robot is the first class that is called. We can see that it has different methods that let us input code for teleop and autonomous.
+The most important thing to note is that we have to initialize the subsystems that we have created.
+Thats why we take the DriveTrain class, call it driveTrain, and initialize. This makes driveTrain an object we can access and alter.
+The same was done for the OI, which we named m_oi (just a convention)
+
+The only other instance we use Robot is for initializing an autonomous command, which we call in autononomousInit();
+Importing the Limelight (our camera) is done in both autonomousPeriodic() and teleopPeriodic()
+
+-----
+Commands
+-----
+
+Commands are the base way we control subsystems. Commands are called either off a button or run from initialization. Usually,
+we take an input, and then access a subsystem that we need, and then alter the components of that subsystem.
+
+The constructor is the code run when we construct the command. This is where you offer room for input and flexibility between objects
+of the same class.
+If we look at our Driving.java, we have to tell the command what subsystem it uses. Basically, if we define
+which subsystem this command uses, no other command can use it. so that you don't have several commands wrestling over
+control for a subsystem.
+
+When you want to define variables, you do so at the top.
+
+Private means only the command can read it
+Blank means Protected
+Protected means only the package can read it
+Public means that all can read it. 
+
+void just means it doesn't return an output. for isFinished, you are returning a boolean, so there is no void. you'll see
+
+The command then has 5 basic methods that are Essential to know.
+
+protected void initialize() {}
+
+This command is run when the command is launched the first time the command is called. This is where you could set some variables or motors etc
+
+protected void execute() {}
+
+This command is run every 25m/s, the cycle of data transfer on the RIO. This is where the brunt of the code is
+First off, we have to input our joystick code, so we are getting updated controller values every 25m/s. 
+If we import joystick values earlier, they will be checked once and remain the same.
+
+We also then define speed and turn values with a real time update.
+Finally, we call our target subsystem, and alter it's mechanisms. In this case, we got the DifferentialDrive
+to complete a basic drive function.
+
+protected boolean isFinished() {}
+Boolean because a boolean is returned
+
+This is called to see if the command is finished. If the command returns true, the command will finish as soon as all the actions
+in execute() is finished. For auto, this is handy, so we can get it to do something then stop afterwards.
+Most of the time, the command will return false. False is used when the command never ends, such as our Driving command.
+Also, commands that are based off button presses return false, because once a button is released the command cancels.
+You can also put an if statement, just to make it return true once a certain variable value is reached.
+
+protected void end() {}
+End is called only when the command ends peacefully, so when isFinished returns true. This is where you do clean up,
+like stopping motors and disabling controllers
+
+protected void interrupted() {}
+Interrupted is called when the command is cancelled. This occurs when a different command needing the same subsystem is called
+and bumps the current command out. Also, when a button linked to the command is released, interrupted() is called.
+This is also a great place for cleanup, like stopping motors and disabling stuff like lights.
+
+-----
+Subsystems
+-----
+
+A subsystem is an isolated mechanism, which has it's own specific mechanisms and controls. For example,
+the drivetrain, an arm, pneumatics, and sensors are all separate subsystems.
+When a command is called, you can assign several subsystems to it, in order to prevent any other command from using them
+This is where you will import your controllers, such as defining and initializing your VictorSP's, Solenoids, and some variables.
+You'd also creates some methods that commands can call. Methods help to reduce the code required for functions,
+such as determining the current state of your object. It also keeps the subsystem's objects private, just for safety.
+I know its confusing and I don't understand it entirely either.
+
+A subsystem will have an initDefaultCommand() {
+setDefaultCommand(new commandName());
+}
+
+This is the command that should run at start up when the subsystem is initialized. For driving, it is essential.
+For pneumatics, not so much. They don't need an initial command, especially one that runs constantly the whole match.
+
+-----
+RobotMap
+-----
+The RobotMap is a file that holds numbers relating to the robot. Most of the time, it is used for storing the values
+of controller inputs. When signals are sent in from the controller, they come in as numbers, so we must interpret those
+and match them with the actual button incoming. 
+
+There are a lot of numbers, so just copy and paste the one attached.
+
+-----
+OI
+-----
+OI is Output-Input. This is where you create controllers, buttons, and then link commands to buttons.
+To create a controller;
+Joystick joystickName = new Joystick(#);. The # is the usb port. Start your first controller at 0, count up
+
+To create a button
+
+Button buttonName = new JoystickButtion(joystickName, RobotMap.desired_button_value); See the list to refer to the exact variable
+
+Finally to link to the command, create a constructor
+Public OI {
+	buttonName.whenPressed(new commandName());
+}
+
+
+That's a Quick Quick Rundown. Ask me if you have questions!!
+
+Challenges:
+Create a Robot that drives
+Create a Robot that drives using different control methods (eg All joystick, buttons etc.)
+Create a non-drive motor that goes forward on one button, backwards on another button press
+Create a pneumatics system (you'll have to research this one!!)
+
+
+
+
+
+
+
+
+
+
+
